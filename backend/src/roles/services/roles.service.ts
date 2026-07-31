@@ -1,7 +1,8 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { PrismaService } from '../../database/prisma.service';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
+import { AssignPermissionsDto } from '../dto/assign-permissions.dto';
 
 @Injectable()
 export class RolesService {
@@ -18,7 +19,7 @@ export class RolesService {
     });
 
     if (existing) {
-      throw new ConflictException(`Le rôle ${dto.code} existe déjà dans ce Tenant`);
+      throw new ConflictException(`Le rôle avec le code '${dto.code}' existe déjà dans ce Tenant`);
     }
 
     return this.prisma.roles.create({
@@ -66,10 +67,18 @@ export class RolesService {
     return role;
   }
 
+  async update(id: string, tenantId: string, dto: UpdateRoleDto) {
+    await this.findOne(id, tenantId);
+
+    return this.prisma.roles.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
   async assignPermissions(roleId: string, tenantId: string, dto: AssignPermissionsDto) {
     const role = await this.findOne(roleId, tenantId);
 
-    // Réinitialiser puis réassigner la liste de permissions
     await this.prisma.rolePermissions.deleteMany({
       where: { roleId: role.id },
     });
@@ -84,5 +93,16 @@ export class RolesService {
     });
 
     return this.findOne(roleId, tenantId);
+  }
+
+  async softDelete(id: string, tenantId: string) {
+    await this.findOne(id, tenantId);
+
+    return this.prisma.roles.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
   }
 }

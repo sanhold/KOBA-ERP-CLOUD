@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { PermissionsService } from './permissions.service';
-import { CreatePermissionDto } from './dto/create-permission.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from './guards/permissions.guard';
-import { Permissions } from './decorators/permissions.decorator';
+import { PermissionsService } from '../services/permissions.service';
+import { CreatePermissionDto } from '../dto/create-permission.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../guards/permissions.guard';
+import { Permissions } from '../decorators/permissions.decorator';
 
 @ApiTags('Permissions (KOBA CORE)')
 @ApiBearerAuth()

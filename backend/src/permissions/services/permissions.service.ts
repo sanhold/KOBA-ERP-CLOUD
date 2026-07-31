@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
-import { CreatePermissionDto } from './dto/create-permission.dto';
+import { PrismaService } from '../../database/prisma.service';
+import { CreatePermissionDto } from '../dto/create-permission.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -12,7 +12,7 @@ export class PermissionsService {
     });
 
     if (existing) {
-      throw new ConflictException(`La permission avec le code ${dto.code} existe déjà`);
+      throw new ConflictException(`La permission avec le code '${dto.code}' existe déjà`);
     }
 
     return this.prisma.permissions.create({
