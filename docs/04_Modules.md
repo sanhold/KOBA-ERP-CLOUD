@@ -1,6 +1,33 @@
 # 04 - Spécifications de la Plateforme Modulaire & Moteur Commun
 
-## 📌 Vision Architecture Modulaire
+## 🗺️ Cartographie Officielle des Entités par Domaine
+
+```text
++-----------------------------------------------------------------------------------+
+|                                MOTEUR COMMUN (CORE)                               |
+|   USER  |  ROLE  |  DOCUMENT (GED)  |  WORKFLOW  |  REPORT  |  SETTING  |  AUDIT   |
++-----------------------------------------------------------------------------------+
+
++-----------------------------------------------------------------------------------+
+|                                  MODULES METIERS                                  |
+| +-------------------------------------------------------------------------------+ |
+| | BUSINESS : CUSTOMER | SUPPLIER | PRODUCT | STOCK | SALE | PURCHASE            | |
+| +-------------------------------------------------------------------------------+ |
+| | FINANCE  : ACCOUNTING | PAYMENT | BANK | TAX                                  | |
+| +-------------------------------------------------------------------------------+ |
+| | EDU      : STUDENT | TEACHER | COURSE                                         | |
+| +-------------------------------------------------------------------------------+ |
+| | HEALTH   : PATIENT | CONSULTATION                                             | |
+| +-------------------------------------------------------------------------------+ |
+| | RH       : EMPLOYEE | PAYROLL                                                 | |
+| +-------------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------------+
+```
+
+---
+
+## ⚙️ 1. Moteur Commun (Core Engine) — Socle Partagé (Premier Développement)
+
 **KOBA ERP Cloud** est conçu comme une plateforme ERP SaaS hautement modulaire. Elle repose sur un **Moteur Commun (Core Engine)** unifié sur lequel se greffent des modules verticaux spécialisés selon le secteur d'activité du Tenant.
 
 ```text
