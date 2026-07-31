@@ -18,15 +18,15 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  @Permissions('system:roles:create')
+  @Permissions('USER.CREATE')
   @ApiOperation({ summary: 'Créer un nouveau rôle au niveau du Tenant' })
   @ApiResponse({ status: 201, description: 'Rôle créé' })
-  create(@Body() dto: CreateRoleDto) {
-    return this.rolesService.create(dto);
+  create(@CurrentUser() user: JwtPayload, @Body() dto: CreateRoleDto) {
+    return this.rolesService.create(dto, user.sub);
   }
 
   @Get()
-  @Permissions('system:roles:read')
+  @Permissions('USER.READ')
   @ApiOperation({ summary: 'Lister tous les rôles d’un Tenant' })
   @ApiResponse({ status: 200, description: 'Liste des rôles' })
   findAll(@CurrentUser() user: JwtPayload) {
@@ -34,7 +34,7 @@ export class RolesController {
   }
 
   @Get(':id')
-  @Permissions('system:roles:read')
+  @Permissions('USER.READ')
   @ApiOperation({ summary: 'Détails d’un rôle par ID' })
   @ApiResponse({ status: 200, description: 'Détails du rôle' })
   findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
@@ -42,7 +42,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-  @Permissions('system:roles:update')
+  @Permissions('USER.UPDATE')
   @ApiOperation({ summary: 'Mettre à jour les informations d’un rôle' })
   @ApiResponse({ status: 200, description: 'Rôle mis à jour' })
   update(
@@ -50,26 +50,26 @@ export class RolesController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateRoleDto,
   ) {
-    return this.rolesService.update(id, user.tenantId, dto);
+    return this.rolesService.update(id, user.tenantId, dto, user.sub);
   }
 
   @Post(':id/permissions')
-  @Permissions('system:roles:assign-permissions')
-  @ApiOperation({ summary: 'Affecter des permissions à un rôle' })
+  @Permissions('USER.UPDATE')
+  @ApiOperation({ summary: 'Affecter des permissions granulaires (RolePermission) à un rôle' })
   @ApiResponse({ status: 200, description: 'Permissions réaffectées' })
   assignPermissions(
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
     @Body() dto: AssignPermissionsDto,
   ) {
-    return this.rolesService.assignPermissions(id, user.tenantId, dto);
+    return this.rolesService.assignPermissions(id, user.tenantId, dto, user.sub);
   }
 
   @Delete(':id')
-  @Permissions('system:roles:delete')
+  @Permissions('USER.DELETE')
   @ApiOperation({ summary: 'Suppression logique d’un rôle' })
   @ApiResponse({ status: 200, description: 'Rôle supprimé' })
   softDelete(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.rolesService.softDelete(id, user.tenantId);
+    return this.rolesService.softDelete(id, user.tenantId, user.sub);
   }
 }

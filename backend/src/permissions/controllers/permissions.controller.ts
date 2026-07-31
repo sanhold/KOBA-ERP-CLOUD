@@ -14,7 +14,7 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
-  @Permissions('system:permissions:create')
+  @Permissions('USER.CREATE')
   @ApiOperation({ summary: 'Créer une nouvelle permission système' })
   @ApiResponse({ status: 201, description: 'Permission créée' })
   create(@Body() dto: CreatePermissionDto) {
@@ -22,7 +22,7 @@ export class PermissionsController {
   }
 
   @Get()
-  @Permissions('system:permissions:read')
+  @Permissions('USER.READ')
   @ApiOperation({ summary: 'Lister le catalogue de toutes les permissions' })
   @ApiResponse({ status: 200, description: 'Catalogue des permissions' })
   findAll() {
@@ -30,7 +30,7 @@ export class PermissionsController {
   }
 
   @Get(':id')
-  @Permissions('system:permissions:read')
+  @Permissions('USER.READ')
   @ApiOperation({ summary: 'Détails d’une permission par ID' })
   @ApiResponse({ status: 200, description: 'Détails de la permission' })
   findOne(@Param('id') id: string) {
