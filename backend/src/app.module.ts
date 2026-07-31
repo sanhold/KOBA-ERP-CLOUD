@@ -8,6 +8,10 @@ import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { AuditModule } from './audit/audit.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { CompaniesModule } from './companies/companies.module';
+import { BranchesModule } from './branches/branches.module';
+import { DepartmentsModule } from './departments/departments.module';
 
 @Module({
   imports: [
@@ -22,10 +26,15 @@ import { AuditModule } from './audit/audit.module';
     RolesModule,
     UsersModule,
     TenantsModule,
+    OrganizationsModule,
+    CompaniesModule,
+    BranchesModule,
+    DepartmentsModule,
   ],
   controllers: [],
   providers: [],
 })
 export class AppModule {}
+
 
 
