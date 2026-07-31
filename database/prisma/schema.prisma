@@ -1,5 +1,5 @@
 // ============================================================================
-// KOBA ERP CLOUD — SCHÉMA DE BASE DE DONNÉES PRISMA (OFFICIEL)
+// KOBA ERP CLOUD — SCHÉMA DE BASE DE DONNÉES PRISMA (KOBA CORE)
 // Reference: docs/DATABASE_ARCHITECTURE.md & docs/DATABASE_ERD.md
 // ============================================================================
 
@@ -67,6 +67,7 @@ model Tenant {
   status    TenantStatus @default(ACTIVE)
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?    @map("deleted_at") @db.Timestamptz(6)
 
   organizations Organizations[]
   companies     Companies[]
@@ -83,37 +84,40 @@ model Tenant {
   activityLogs  ActivityLogs[]
   sessions      Sessions[]
 
+  @@index([status, deletedAt])
   @@map("tenants")
 }
 
 model Organizations {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  name      String   @db.VarChar(255)
-  code      String   @db.VarChar(50)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  name      String    @db.VarChar(255)
+  code      String    @db.VarChar(50)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   companies Companies[]
   users     Users[]
 
   @@unique([tenantId, code])
-  @@index([tenantId])
+  @@index([tenantId, deletedAt])
   @@map("organizations")
 }
 
 model Companies {
-  id                 String   @id @default(uuid()) @db.Uuid
-  tenantId           String   @map("tenant_id") @db.Uuid
-  organizationId     String   @map("organization_id") @db.Uuid
-  name               String   @db.VarChar(255)
-  registrationNumber String?  @map("registration_number") @db.VarChar(100)
-  taxId              String?  @map("tax_id") @db.VarChar(100)
-  currencyId         String?  @map("currency_id") @db.Uuid
-  countryId          String?  @map("country_id") @db.Uuid
-  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                 String    @id @default(uuid()) @db.Uuid
+  tenantId           String    @map("tenant_id") @db.Uuid
+  organizationId     String    @map("organization_id") @db.Uuid
+  name               String    @db.VarChar(255)
+  registrationNumber String?   @map("registration_number") @db.VarChar(100)
+  taxId              String?   @map("tax_id") @db.VarChar(100)
+  currencyId         String?   @map("currency_id") @db.Uuid
+  countryId          String?   @map("country_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   organization Organizations @relation(fields: [organizationId], references: [id], onDelete: Restrict)
@@ -125,20 +129,21 @@ model Companies {
   auditLogs AuditLogs[]
   settings  Settings[]
 
-  @@index([tenantId, organizationId])
+  @@index([tenantId, organizationId, deletedAt])
   @@map("companies")
 }
 
 model Branches {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  companyId String   @map("company_id") @db.Uuid
-  name      String   @db.VarChar(255)
-  code      String   @db.VarChar(50)
-  cityId    String?  @map("city_id") @db.Uuid
-  address   String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  name      String    @db.VarChar(255)
+  code      String    @db.VarChar(50)
+  cityId    String?   @map("city_id") @db.Uuid
+  address   String?   @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant  Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   company Companies @relation(fields: [companyId], references: [id], onDelete: Restrict)
@@ -148,19 +153,20 @@ model Branches {
   userRoles   UserRoles[]
 
   @@unique([companyId, code])
-  @@index([tenantId, companyId])
+  @@index([tenantId, companyId, deletedAt])
   @@map("branches")
 }
 
 model Departments {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  branchId  String   @map("branch_id") @db.Uuid
-  name      String   @db.VarChar(255)
-  code      String   @db.VarChar(50)
-  managerId String?  @map("manager_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  branchId  String    @map("branch_id") @db.Uuid
+  name      String    @db.VarChar(255)
+  code      String    @db.VarChar(50)
+  managerId String?   @map("manager_id") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   branch Branches @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -168,7 +174,7 @@ model Departments {
   users Users[]
 
   @@unique([branchId, code])
-  @@index([tenantId, branchId])
+  @@index([tenantId, branchId, deletedAt])
   @@map("departments")
 }
 
@@ -191,6 +197,7 @@ model Users {
   mfaSecret      String?    @map("mfa_secret") @db.VarChar(255)
   createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?  @map("deleted_at") @db.Timestamptz(6)
 
   tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   organization Organizations? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
@@ -203,19 +210,20 @@ model Users {
   activityLogs  ActivityLogs[]
 
   @@unique([tenantId, email])
-  @@index([tenantId, status])
+  @@index([tenantId, status, deletedAt])
   @@map("users")
 }
 
 model Roles {
-  id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String?  @map("tenant_id") @db.Uuid
-  name        String   @db.VarChar(100)
-  code        String   @db.VarChar(100)
-  description String?  @db.Text
-  isSystem    Boolean  @default(false) @map("is_system")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String?   @map("tenant_id") @db.Uuid
+  name        String    @db.VarChar(100)
+  code        String    @db.VarChar(100)
+  description String?   @db.Text
+  isSystem    Boolean   @default(false) @map("is_system")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -224,6 +232,7 @@ model Roles {
   workflowSteps   WorkflowSteps[]
 
   @@unique([tenantId, code])
+  @@index([tenantId, deletedAt])
   @@map("roles")
 }
 
@@ -235,6 +244,7 @@ model Permissions {
   code        String   @unique @db.VarChar(150)
   description String?  @db.Text
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   rolePermissions RolePermissions[]
 
@@ -270,19 +280,20 @@ model UserRoles {
 }
 
 model Sessions {
-  id                String   @id @default(uuid()) @db.Uuid
-  tenantId          String   @map("tenant_id") @db.Uuid
-  userId            String   @map("user_id") @db.Uuid
-  refreshTokenHash  String   @map("refresh_token_hash") @db.VarChar(255)
-  ipAddress         String?  @map("ip_address") @db.VarChar(45)
-  userAgent         String?  @map("user_agent") @db.Text
-  expiresAt         DateTime @map("expires_at") @db.Timestamptz(6)
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  refreshTokenHash String   @map("refresh_token_hash") @db.VarChar(255)
+  ipAddress        String?  @map("ip_address") @db.VarChar(45)
+  userAgent        String?  @map("user_agent") @db.Text
+  expiresAt        DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([tenantId, userId])
+  @@index([tenantId, userId, expiresAt])
   @@map("sessions")
 }
 
@@ -291,13 +302,14 @@ model Sessions {
 // ============================================================================
 
 model Countries {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @db.VarChar(100)
-  isoCode2    String   @unique @map("iso_code_2") @db.VarChar(2)
-  isoCode3    String   @unique @map("iso_code_3") @db.VarChar(3)
-  phoneCode   String   @map("phone_code") @db.VarChar(10)
-  flagUrl     String?  @map("flag_url") @db.VarChar(255)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  isoCode2  String   @unique @map("iso_code_2") @db.VarChar(2)
+  isoCode3  String   @unique @map("iso_code_3") @db.VarChar(3)
+  phoneCode String   @map("phone_code") @db.VarChar(10)
+  flagUrl   String?  @map("flag_url") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   cities    Cities[]
   companies Companies[]
@@ -312,6 +324,7 @@ model Cities {
   regionName String?  @map("region_name") @db.VarChar(150)
   postalCode String?  @map("postal_code") @db.VarChar(20)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   country  Countries  @relation(fields: [countryId], references: [id], onDelete: Cascade)
   branches Branches[]
@@ -353,6 +366,7 @@ model Notifications {
   readAt    DateTime?        @map("read_at") @db.Timestamptz(6)
   payload   Json?            @db.JsonB
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -362,22 +376,23 @@ model Notifications {
 }
 
 model Documents {
-  id         String   @id @default(uuid()) @db.Uuid
-  tenantId   String   @map("tenant_id") @db.Uuid
-  companyId  String   @map("company_id") @db.Uuid
-  entityType String   @map("entity_type") @db.VarChar(100)
-  entityId   String   @map("entity_id") @db.Uuid
-  title      String   @db.VarChar(255)
-  createdBy  String   @map("created_by") @db.Uuid
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id         String    @id @default(uuid()) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  companyId  String    @map("company_id") @db.Uuid
+  entityType String    @map("entity_type") @db.VarChar(100)
+  entityId   String    @map("entity_id") @db.Uuid
+  title      String    @db.VarChar(255)
+  createdBy  String    @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant  Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   company Companies @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   files Files[]
 
-  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, entityType, entityId, deletedAt])
   @@map("documents")
 }
 
@@ -392,6 +407,7 @@ model Files {
   mimeType       String   @map("mime_type") @db.VarChar(100)
   checksumSha256 String?  @map("checksum_sha256") @db.VarChar(64)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   document Documents @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -401,20 +417,21 @@ model Files {
 }
 
 model Workflows {
-  id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @map("tenant_id") @db.Uuid
-  module      String   @db.VarChar(100)
-  processName String   @map("process_name") @db.VarChar(150)
-  description String?  @db.Text
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  module      String    @db.VarChar(100)
+  processName String    @map("process_name") @db.VarChar(150)
+  description String?   @db.Text
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   workflowSteps WorkflowSteps[]
 
-  @@index([tenantId, module])
+  @@index([tenantId, module, deletedAt])
   @@map("workflows")
 }
 
@@ -426,6 +443,7 @@ model WorkflowSteps {
   requiredRoleId String             @map("required_role_id") @db.Uuid
   actionType     WorkflowActionType @default(APPROVAL) @map("action_type")
   createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   workflow     Workflows @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   requiredRole Roles     @relation(fields: [requiredRoleId], references: [id], onDelete: Restrict)
