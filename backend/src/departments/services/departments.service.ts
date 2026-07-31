@@ -42,15 +42,24 @@ export class DepartmentsService {
       action: AuditAction.CREATE,
       tableName: 'departments',
       recordId: department.id,
-      newValues: { name: department.name, code: department.code },
+      newValues: { name: department.name, code: department.code, managerId: department.managerId },
     });
 
     return department;
   }
 
-  async findAllByTenant(tenantId: string) {
+  async findAllByTenant(tenantId: string, search?: string) {
+    const whereClause: any = { tenantId, deletedAt: null };
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.departments.findMany({
-      where: { tenantId, deletedAt: null },
+      where: whereClause,
       include: {
         users: {
           select: {

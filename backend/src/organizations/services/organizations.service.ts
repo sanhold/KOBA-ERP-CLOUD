@@ -31,6 +31,10 @@ export class OrganizationsService {
         tenantId,
         name: dto.name,
         code: dto.code.toUpperCase(),
+        logo: dto.logo,
+        address: dto.address,
+        phone: dto.phone,
+        email: dto.email,
       },
     });
 
@@ -40,15 +44,24 @@ export class OrganizationsService {
       action: AuditAction.CREATE,
       tableName: 'organizations',
       recordId: organization.id,
-      newValues: { name: organization.name, code: organization.code },
+      newValues: { name: organization.name, code: organization.code, email: organization.email },
     });
 
     return organization;
   }
 
-  async findAllByTenant(tenantId: string) {
+  async findAllByTenant(tenantId: string, search?: string) {
+    const whereClause: any = { tenantId, deletedAt: null };
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.organizations.findMany({
-      where: { tenantId, deletedAt: null },
+      where: whereClause,
       include: {
         companies: true,
       },
@@ -85,8 +98,8 @@ export class OrganizationsService {
       action: AuditAction.UPDATE,
       tableName: 'organizations',
       recordId: organization.id,
-      oldValues: { name: organization.name },
-      newValues: { name: updated.name },
+      oldValues: { name: organization.name, email: organization.email },
+      newValues: { name: updated.name, email: updated.email },
     });
 
     return updated;

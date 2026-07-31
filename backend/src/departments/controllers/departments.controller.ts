@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DepartmentsService } from '../services/departments.service';
 import { CreateDepartmentDto } from '../dto/create-department.dto';
@@ -26,10 +26,10 @@ export class DepartmentsController {
 
   @Get()
   @Permissions('USER.READ')
-  @ApiOperation({ summary: 'Lister tous les départements du Tenant' })
+  @ApiOperation({ summary: 'Lister et rechercher les départements du Tenant' })
   @ApiResponse({ status: 200, description: 'Liste des départements' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.departmentsService.findAllByTenant(user.tenantId);
+  findAll(@CurrentUser() user: JwtPayload, @Query('search') search?: string) {
+    return this.departmentsService.findAllByTenant(user.tenantId, search);
   }
 
   @Get(':id')

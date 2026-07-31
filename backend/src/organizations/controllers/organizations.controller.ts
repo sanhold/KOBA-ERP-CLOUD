@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { OrganizationsService } from '../services/organizations.service';
 import { CreateOrganizationDto } from '../dto/create-organization.dto';
@@ -26,10 +26,10 @@ export class OrganizationsController {
 
   @Get()
   @Permissions('USER.READ')
-  @ApiOperation({ summary: 'Lister toutes les organisations du Tenant' })
+  @ApiOperation({ summary: 'Lister et rechercher les organisations du Tenant' })
   @ApiResponse({ status: 200, description: 'Liste des organisations' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.organizationsService.findAllByTenant(user.tenantId);
+  findAll(@CurrentUser() user: JwtPayload, @Query('search') search?: string) {
+    return this.organizationsService.findAllByTenant(user.tenantId, search);
   }
 
   @Get(':id')

@@ -18,8 +18,11 @@ export class CompaniesService {
         tenantId,
         organizationId: dto.organizationId,
         name: dto.name,
+        legalName: dto.legalName,
+        legalForm: dto.legalForm,
         registrationNumber: dto.registrationNumber,
         taxId: dto.taxId,
+        currency: dto.currency || 'XOF',
         countryId: dto.countryId,
       },
     });
@@ -31,15 +34,26 @@ export class CompaniesService {
       action: AuditAction.CREATE,
       tableName: 'companies',
       recordId: company.id,
-      newValues: { name: company.name, taxId: company.taxId },
+      newValues: { name: company.name, legalForm: company.legalForm, taxId: company.taxId },
     });
 
     return company;
   }
 
-  async findAllByTenant(tenantId: string) {
+  async findAllByTenant(tenantId: string, search?: string) {
+    const whereClause: any = { tenantId, deletedAt: null };
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { legalName: { contains: search, mode: 'insensitive' } },
+        { registrationNumber: { contains: search, mode: 'insensitive' } },
+        { taxId: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.companies.findMany({
-      where: { tenantId, deletedAt: null },
+      where: whereClause,
       include: {
         branches: true,
       },

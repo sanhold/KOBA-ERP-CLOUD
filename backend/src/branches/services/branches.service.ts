@@ -34,6 +34,7 @@ export class BranchesService {
         code: dto.code.toUpperCase(),
         cityId: dto.cityId,
         address: dto.address,
+        phone: dto.phone,
       },
     });
 
@@ -44,15 +45,25 @@ export class BranchesService {
       action: AuditAction.CREATE,
       tableName: 'branches',
       recordId: branch.id,
-      newValues: { name: branch.name, code: branch.code },
+      newValues: { name: branch.name, code: branch.code, phone: branch.phone },
     });
 
     return branch;
   }
 
-  async findAllByTenant(tenantId: string) {
+  async findAllByTenant(tenantId: string, search?: string) {
+    const whereClause: any = { tenantId, deletedAt: null };
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: 'insensitive' } },
+        { address: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.branches.findMany({
-      where: { tenantId, deletedAt: null },
+      where: whereClause,
       include: {
         departments: true,
       },

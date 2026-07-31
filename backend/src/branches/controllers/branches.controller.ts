@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BranchesService } from '../services/branches.service';
 import { CreateBranchDto } from '../dto/create-branch.dto';
@@ -26,10 +26,10 @@ export class BranchesController {
 
   @Get()
   @Permissions('USER.READ')
-  @ApiOperation({ summary: 'Lister toutes les agences du Tenant' })
+  @ApiOperation({ summary: 'Lister et rechercher les agences du Tenant' })
   @ApiResponse({ status: 200, description: 'Liste des agences' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.branchesService.findAllByTenant(user.tenantId);
+  findAll(@CurrentUser() user: JwtPayload, @Query('search') search?: string) {
+    return this.branchesService.findAllByTenant(user.tenantId, search);
   }
 
   @Get(':id')

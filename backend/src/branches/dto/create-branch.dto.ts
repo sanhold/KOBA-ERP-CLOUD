@@ -26,4 +26,9 @@ export class CreateBranchDto {
   @IsString()
   @IsOptional()
   address?: string;
+
+  @ApiPropertyOptional({ description: 'Numéro de téléphone' })
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

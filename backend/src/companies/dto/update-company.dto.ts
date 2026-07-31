@@ -2,12 +2,22 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateCompanyDto {
-  @ApiPropertyOptional({ description: 'Nom de l’entreprise' })
+  @ApiPropertyOptional({ description: 'Nom usuel de l’entreprise' })
   @IsString()
   @IsOptional()
   name?: string;
 
-  @ApiPropertyOptional({ description: 'Numéro de registre du commerce (RCCM)' })
+  @ApiPropertyOptional({ description: 'Raison sociale légale' })
+  @IsString()
+  @IsOptional()
+  legalName?: string;
+
+  @ApiPropertyOptional({ description: 'Forme juridique OHADA (ex: SARL, SA, SAS, SUARL)' })
+  @IsString()
+  @IsOptional()
+  legalForm?: string;
+
+  @ApiPropertyOptional({ description: 'Numéro de registre du commerce OHADA (RCCM)' })
   @IsString()
   @IsOptional()
   registrationNumber?: string;
@@ -16,4 +26,9 @@ export class UpdateCompanyDto {
   @IsString()
   @IsOptional()
   taxId?: string;
+
+  @ApiPropertyOptional({ description: 'Devise de tenue de compte' })
+  @IsString()
+  @IsOptional()
+  currency?: string;
 }

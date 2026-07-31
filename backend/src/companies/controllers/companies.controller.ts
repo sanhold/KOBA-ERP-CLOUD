@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CompaniesService } from '../services/companies.service';
 import { CreateCompanyDto } from '../dto/create-company.dto';
@@ -18,7 +18,7 @@ export class CompaniesController {
 
   @Post()
   @Permissions('USER.CREATE')
-  @ApiOperation({ summary: 'Créer une nouvelle entreprise / société juridique' })
+  @ApiOperation({ summary: 'Créer une nouvelle entreprise / société juridique (Conforme OHADA)' })
   @ApiResponse({ status: 201, description: 'Entreprise créée' })
   create(@CurrentUser() user: JwtPayload, @Body() dto: CreateCompanyDto) {
     return this.companiesService.create(user.tenantId, dto, user.sub);
@@ -26,10 +26,10 @@ export class CompaniesController {
 
   @Get()
   @Permissions('USER.READ')
-  @ApiOperation({ summary: 'Lister toutes les entreprises du Tenant' })
+  @ApiOperation({ summary: 'Lister et rechercher les entreprises du Tenant' })
   @ApiResponse({ status: 200, description: 'Liste des entreprises' })
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.companiesService.findAllByTenant(user.tenantId);
+  findAll(@CurrentUser() user: JwtPayload, @Query('search') search?: string) {
+    return this.companiesService.findAllByTenant(user.tenantId, search);
   }
 
   @Get(':id')
